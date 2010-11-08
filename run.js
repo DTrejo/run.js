@@ -10,36 +10,38 @@ var sys = require('sys'),
   ignoreExtensions = ['.dirtydb', '.db'];
 
 if (process.argv.length !== 3){
-  console.log('\nFound ' + process.argv.length + ' argument(s). Expected three.');
-  console.log('Usage: \nnode run.js servercode.js');
+  console.log('\n\nFound ' + (process.argv.length - 1) + ' argument(s). Expected two.');
+  console.log('Usage: \nnode run.js servercode.js\n');
   return;
 }
   
 run();
-watchFiles(parseFolder('.'), run); // watch all files, restart if problem
+watchFiles(parseFolder('.'), restart); // watch all files, restart if problem
 
 // executes the command given by the second argument
-function run() { 
-
-  // kill if running
-  if (child !== null && child !== undefined){
-    child.kill();
-  }
-    
+function run() {
   // run the server
   child = spawn('node', [process.argv[2]]);
-  
-  // let the child's  'puts'  escape.
-  child.stdout.addListener('data', function(data) { 
+
+  // let the child's `puts` escape.
+  child.stdout.on('data', function(data) { 
     sys.print(data);
   });
-  child.stderr.addListener('data', function(error) { 
+  child.stderr.on('data', function(error) { 
     sys.print(error);
     // this allows the server to restart when you change a file. Hopefully the change fixes the error!
     child = undefined;
   });
-  
+
   console.log('\nStarting: ' + process.argv[2]);
+}
+
+function restart() { 
+  // kill if running
+  child.kill();
+
+  // run it again
+  run();
 }
 
 /**
