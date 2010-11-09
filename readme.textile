@@ -22,4 +22,4 @@ h3. Misc
 
 * You can also ignore changes to files that don't matter (like .DS_Store or whatever else)
 * Usage: node run.js yourcode.js
-* Source at https://github.com/DTrejo/run.js
+* Source at "https://github.com/DTrejo/run.js":https://github.com/DTrejo/run.js
