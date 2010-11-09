@@ -1,7 +1,10 @@
-h1. Why do you even care?
+h1. Why should you care?
 
-run.js runs code in a directory and reruns it if any files are changed.
-This makes it super easy to your code, and alt-tab to the terminal to see the results (or alt-tab to the browser and skip the terminal :)
+run.js runs code in a directory and reruns it if any files are changed. 
+
+No more switching to the terminal to rerun your code. Just change a file and your code will be rerun.
+
+This is especially nice for webservers, as you can skip the terminal and alt-tab to the browser to see your updated code happily running.
 
 h2. Show me how I use it
 
@@ -15,9 +18,8 @@ watched files:
 ./server.js
 > server is listening on http://127.0.0.1:8080</pre>
 
-https://github.com/DTrejo/run.js
-usage: node run.js yourcode.js
+h3. Misc
 
-h2. Misc
-
-You can also ignore changes to files that don't matter (like .DS_Store or whatever else)
+* You can also ignore changes to files that don't matter (like .DS_Store or whatever else)
+* Usage: node run.js yourcode.js
+* Source at https://github.com/DTrejo/run.js
