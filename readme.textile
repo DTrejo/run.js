@@ -1,4 +1,4 @@
-h1. Why should you care?
+h1. Why should I care?
 
 run.js runs code in a directory and reruns it if any files are changed. 
 
@@ -6,7 +6,7 @@ No more switching to the terminal to rerun your code. Just change a file and you
 
 This is especially nice for webservers, as you can skip the terminal and alt-tab to the browser to see your updated code happily running.
 
-h2. Show me how I use it
+h2. How does this even work?
 
 <pre>$ node path/to/run.js server.js
 
