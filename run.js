@@ -31,7 +31,7 @@ function run() {
   child.stderr.on('data', function(error) { 
     sys.print(error);
     // this allows the server to restart when you change a file. Hopefully the change fixes the error!
-    child = undefined;
+    // child = undefined;
   });
 
   console.log('\nStarting: ' + process.argv[2]);
@@ -39,7 +39,7 @@ function run() {
 
 function restart() { 
   // kill if running
-  child.kill();
+  if (child) child.kill();
 
   // run it again
   run();
