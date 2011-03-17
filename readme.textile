@@ -1,14 +1,8 @@
-h1. Why should I care?
+h1. What does it do?
 
-run.js runs code in a directory and reruns it if any files are changed. 
+<pre>npm install run</pre>
 
-No more switching to the terminal to rerun your code. Just change a file and your code will be rerun.
-
-This is especially nice for webservers, as you can skip the terminal and alt-tab to the browser to see your updated code happily running.
-
-h2. How does this even work?
-
-<pre>$ node path/to/run.js server.js
+<pre>$ run server.js
 
 Starting: server.js
 watched files:
@@ -18,8 +12,17 @@ watched files:
 ./server.js
 > server is listening on http://127.0.0.1:8080</pre>
 
+<code>run</code> will rerun server.js whenever one of the watched files is changed.
+
+No more switching to the terminal to rerun your code. Just change a file and your code will be rerun.
+
+This is especially nice for webservers, as you can skip the terminal and alt-tab to the browser to see your updated code happily running.
+
+h2. Install
+
+<pre>npm install run</pre>
+
 h3. Misc
 
-* You can also ignore changes to files that don't matter (like .DS_Store or whatever else)
-* Usage: node run.js yourcode.js
+* Usage: run yourcode.js
 * Source at "https://github.com/DTrejo/run.js":https://github.com/DTrejo/run.js
