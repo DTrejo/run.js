@@ -24,5 +24,5 @@ h2. Install
 
 h3. Misc
 
-* Usage: run yourcode.js
+* Usage: <code>run yourcode.js</code>
 * Source at "https://github.com/DTrejo/run.js":https://github.com/DTrejo/run.js
