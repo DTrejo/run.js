@@ -2,7 +2,7 @@ h1. What does it do?
 
 <pre>npm install run</pre>
 
-<pre>$ run server.js
+<pre>$ runjs server.js
 
 Starting: server.js
 watched files:
@@ -12,7 +12,7 @@ watched files:
 ./server.js
 > server is listening on http://127.0.0.1:8080</pre>
 
-<code>run</code> will rerun server.js whenever one of the watched files is changed.
+<code>runjs</code> will rerun server.js whenever one of the watched files is changed.
 
 No more switching to the terminal to rerun your code. Just change a file and your code will be rerun.
 
@@ -24,5 +24,5 @@ h2. Install
 
 h3. Misc
 
-* Usage: <code>run yourcode.js</code>
+* Usage: <code>runjs yourcode.js</code>
 * Source at "https://github.com/DTrejo/run.js":https://github.com/DTrejo/run.js
