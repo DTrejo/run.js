@@ -8,13 +8,17 @@ var sys = require('sys'),
   fs = require('fs'), 
   spawn = require('child_process').spawn,
   child, // child process which runs the actual code
-  ignoreExtensions = ['.dirtydb', '.db'];
+  ignoreExtensions = ['.dirtydb', '.db'],
+  node = 'node';
 
 if (process.argv.length !== 3){
   console.log('\n\nFound ' + (process.argv.length - 1) + ' argument(s). Expected two.');
   console.log('Usage: \nnode run.js servercode.js\n');
   return;
 }
+
+if (process.argv[2].match(/\.coffee$/))
+  node = 'coffee';
   
 run();
 watchFiles(parseFolder('.'), restart); // watch all files, restart if problem
@@ -22,7 +26,7 @@ watchFiles(parseFolder('.'), restart); // watch all files, restart if problem
 // executes the command given by the second argument
 function run() {
   // run the server
-  child = spawn('node', [process.argv[2]]);
+  child = spawn(node, [process.argv[2]]);
 
   // let the child's `puts` escape.
   child.stdout.on('data', function(data) { 
