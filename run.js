@@ -4,22 +4,23 @@
 // servercode.js is whatever js file you want to run with node.
 
 // Excludes filetypes in the ignoreExtensions array
-var sys = require('sys'),
-  fs = require('fs'), 
-  spawn = require('child_process').spawn,
-  child, // child process which runs the actual code
-  ignoreExtensions = ['.dirtydb', '.db'],
-  node = 'node';
+var sys = require('sys')
+  , fs = require('fs')
+  , spawn = require('child_process').spawn
+  , child // child process which runs the actual code
+  , ignoreExtensions = ['.dirtydb', '.db']
+  , node = 'node' // switched out for coffee depending on extension.
+  ;
 
-if (process.argv.length !== 3){
-  console.log('\n\nFound ' + (process.argv.length - 1) + ' argument(s). Expected two.');
+if (process.argv.length !== 3) {
+  console.log('\n\nFound ' + (process.argv.length - 1)
+             + ' argument(s). Expected two.');
   console.log('Usage: \nnode run.js servercode.js\n');
-  return;
+  process.exit(1); // exit w/ an error code.
 }
 
-if (process.argv[2].match(/\.coffee$/))
-  node = 'coffee';
-  
+if (process.argv[2].match(/\.coffee$/)) node = 'coffee';
+
 run();
 watchFiles(parseFolder('.'), restart); // watch all files, restart if problem
 
@@ -29,19 +30,17 @@ function run() {
   child = spawn(node, [process.argv[2]]);
 
   // let the child's `puts` escape.
-  child.stdout.on('data', function(data) { 
+  child.stdout.on('data', function(data) {
     sys.print(data);
   });
-  child.stderr.on('data', function(error) { 
+  child.stderr.on('data', function(error) {
     sys.print(error);
-    // this allows the server to restart when you change a file. Hopefully the change fixes the error!
-    // child = undefined;
   });
 
   console.log('\nStarting: ' + process.argv[2]);
 }
 
-function restart() { 
+function restart() {
   // kill if running
   if (child) child.kill();
 
@@ -62,7 +61,7 @@ function parseFolder(root) {
   files.forEach(function(file) {
     var path = root + '/' + file
       , stat = fs.statSync(path);
-    
+
     // add to list
     if (stat !== undefined && !stat.isDirectory()) {
       fileList.push(path);
@@ -73,6 +72,7 @@ function parseFolder(root) {
       fileList = fileList.concat(parseFolder(path));
     }
   });
+
   return fileList;
 }
 
@@ -84,10 +84,10 @@ function parseFolder(root) {
 */
 function watchFiles(files, callback) {
 
-var config = {  persistent: true, interval: 1 };
+  var config = {  persistent: true, interval: 1 };
   console.log('watched files:');
 
-  files.forEach(function (file) {  
+  files.forEach(function (file) {
 
     // don't watch things with given extensions, don't watch dotfiles.
     var ext = file.slice(file.lastIndexOf('.'), file.length);
@@ -97,7 +97,7 @@ var config = {  persistent: true, interval: 1 };
     }
 
     console.log(file);
-  
+
     // if one of the files changes
     fs.watchFile(file, config, function (curr, prev) {
 
