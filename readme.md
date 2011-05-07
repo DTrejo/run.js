@@ -1,6 +1,6 @@
 # What does it do?
 
-`npm install -g run`
+`npm install run`
 
 <pre>$ runjs server.js
 
@@ -23,8 +23,7 @@ alt-tab to the browser to see your updated code happily running.
 
 ## Install
 
-`npm install -g run` or `npm install run` if you are using an old version of
-npm.
+`npm install run`
 
 ### Misc
 
