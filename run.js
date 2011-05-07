@@ -4,7 +4,7 @@
 // servercode.js is whatever js file you want to run with node.
 
 // Excludes filetypes in the ignoreExtensions array
-var sys = require('sys')
+var util = require('util')
   , fs = require('fs')
   , spawn = require('child_process').spawn
   , child // child process which runs the actual code
@@ -13,9 +13,9 @@ var sys = require('sys')
   ;
 
 if (process.argv.length !== 3) {
-  console.log('\n\nFound ' + (process.argv.length - 1)
+  console.log('Found ' + (process.argv.length - 1)
              + ' argument(s). Expected two.');
-  console.log('Usage: \nnode run.js servercode.js\n');
+  console.log('Usage: \n  node run.js servercode.js');
   process.exit(1); // exit w/ an error code.
 }
 
@@ -24,18 +24,24 @@ if (process.argv[2].match(/\.coffee$/)) node = 'coffee';
 run();
 watchFiles(parseFolder('.'), restart); // watch all files, restart if problem
 
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
+
 // executes the command given by the second argument
 function run() {
   // run the server
   child = spawn(node, [process.argv[2]]);
 
-  // let the child's `puts` escape.
+  // let the child's output escape.
   child.stdout.on('data', function(data) {
-    sys.print(data);
+    util.print(data);
   });
   child.stderr.on('data', function(error) {
-    sys.print(error);
+    util.print(error);
   });
+
+  // let the user's typing get to the child
+  process.stdin.pipe(child.stdin);
 
   console.log('\nStarting: ' + process.argv[2]);
 }
