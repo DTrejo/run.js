@@ -1,6 +1,6 @@
 # What does it do?
 
-`npm install run`
+`npm install -g run`
 
 <pre>$ runjs server.js
 
@@ -23,9 +23,15 @@ alt-tab to the browser to see your updated code happily running.
 
 ## Install
 
-`npm install run`
+`npm install -g run` or `npm install run` if you are using an old version of
+npm.
 
 ### Misc
 
 - Usage: `runjs yourcode.js`
 - Source at [https://github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
+
+
+### Recent additions
+- stdin is now recieved by the child process
+- support for runjs `myfile.coffee` by [rockymeza](https://github.com/rockymeza)
