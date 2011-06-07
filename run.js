@@ -6,9 +6,22 @@
 // Excludes filetypes in the ignoreExtensions array
 var util = require('util')
   , fs = require('fs')
+  , path = require('path')
   , spawn = require('child_process').spawn
   , child // child process which runs the actual code
   , ignoreExtensions = ['.dirtydb', '.db']
+  // So much hacky :)
+  , ignoreFiles = (path.existsSync('.gitignore')
+                  && fs.readFileSync('.gitignore')
+                      .toString('utf8')
+                      .split('\n')
+                      .filter(function(s) {
+                        return s.indexOf('#') !== 0 && s.length > 0;
+                      })
+                      .map(function(s) {
+                        return './' + s;
+                      })
+                  ) || []
   , node = 'node' // switched out for coffee depending on extension.
   ;
 
@@ -99,6 +112,10 @@ function watchFiles(files, callback) {
     var ext = file.slice(file.lastIndexOf('.'), file.length);
     if (ignoreExtensions.indexOf(ext) !== -1 || file.indexOf('./.') === 0) {
       // console.log('ignored ' + file);
+      return;
+    }
+    if (ignoreFiles.indexOf(file) !== -1) {
+      console.log('ignored', file, 'because listed in .gitignore');
       return;
     }
 
