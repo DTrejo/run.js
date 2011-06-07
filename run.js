@@ -66,7 +66,7 @@ function parseFolder(root) {
 
   files.forEach(function(file) {
     var path = root + '/' + file
-      , stat = fs.statSync(path);
+      , stat = fs.lstatSync(path);
 
     // add to list
     if (stat !== undefined && !stat.isDirectory()) {
