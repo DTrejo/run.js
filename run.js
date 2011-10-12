@@ -19,7 +19,7 @@ var util = require('util')
                         return s.indexOf('#') !== 0 && s.length > 0;
                       })
                       .map(function(s) {
-                        return './' + s;
+                        return new RegExp(s.replace('.','\\.').replace('*','.*'));
                       })
                   ) || []
   , node = 'node' // switched out for coffee depending on extension.
@@ -108,13 +108,8 @@ function watchFiles(files, callback) {
 
   files.forEach(function (file) {
 
-    // don't watch things with given extensions, don't watch dotfiles.
-    var ext = file.slice(file.lastIndexOf('.'), file.length);
-    if (ignoreExtensions.indexOf(ext) !== -1 || file.indexOf('./.') === 0) {
-      // console.log('ignored ' + file);
-      return;
-    }
-    if (ignoreFiles.indexOf(file) !== -1) {
+    var ignored = ignoreFiles.map(function(f){ if(file.search(f) !== -1) return 1 }).indexOf(1) !== -1;
+    if (ignored){
       console.log('ignored', file, 'because listed in .gitignore');
       return;
     }
