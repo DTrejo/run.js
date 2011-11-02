@@ -22,14 +22,21 @@ var util = require('util')
                         return './' + s;
                       })
                   ) || []
-  , node = 'node' // switched out for coffee depending on extension.
+  // switched out for coffee depending on extension.
+  , node = 'node'
   ;
+
+console.log('watching', path.resolve('./'), 'and excluding the below files');
+console.log('ignored files (via .gitignore):'
+  , '\n\t' + ignoreFiles.join('\n\t'));
+console.log('ignored extensions (via run.js):'
+  , '\n\t' + ignoreExtensions.join('\n\t'));
 
 if (process.argv.length !== 3) {
   console.log('Found ' + (process.argv.length - 1)
              + ' argument(s). Expected two.');
   console.log('Usage: \n  node run.js servercode.js');
-  process.exit(1); // exit w/ an error code.
+  process.exit(1);
 }
 
 if (process.argv[2].match(/\.coffee$/)) node = 'coffee';
@@ -87,8 +94,13 @@ function parseFolder(root) {
     }
 
     // recur if directory, ignore dot directories
-    if (stat !== undefined && stat.isDirectory() && file.indexOf('.') !== 0) {
+    if (stat !== undefined
+      && stat.isDirectory()
+      && file.indexOf('.') !== 0
+      && ignoreFiles.indexOf(path) === -1) {
       fileList = fileList.concat(parseFolder(path));
+    } else if (ignoreFiles.indexOf(path) !== -1) {
+      console.log('found & ignored', path, '; was listed in .gitignore');
     }
   });
 
@@ -104,22 +116,21 @@ function parseFolder(root) {
 function watchFiles(files, callback) {
 
   var config = {  persistent: true, interval: 1 };
-  console.log('watched files:');
 
   files.forEach(function (file) {
 
     // don't watch things with given extensions, don't watch dotfiles.
     var ext = file.slice(file.lastIndexOf('.'), file.length);
     if (ignoreExtensions.indexOf(ext) !== -1 || file.indexOf('./.') === 0) {
-      // console.log('ignored ' + file);
+      // console.log('ignored' + file);
       return;
     }
     if (ignoreFiles.indexOf(file) !== -1) {
-      console.log('ignored', file, 'because listed in .gitignore');
+      console.log('found & ignored', file, '; was listed in .gitignore');
       return;
     }
 
-    console.log(file);
+    // console.log(file);
 
     // if one of the files changes
     fs.watchFile(file, config, function (curr, prev) {
