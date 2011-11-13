@@ -32,5 +32,6 @@ alt-tab to the browser to see your updated code happily running.
 
 
 ### Recent additions
+- files and directories in `.gitignore` are not watched.
 - stdin is now recieved by the child process
 - support for runjs `myfile.coffee` by [rockymeza](https://github.com/rockymeza)
