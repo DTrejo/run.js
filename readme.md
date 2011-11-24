@@ -27,6 +27,7 @@ alt-tab to the browser to see your updated code happily running.
 [See another example.](test/screenshot.png)
 
 ### Features
+- supports globs in .gitignore (e.g. `*.log`)
 - any arguments, including debug arguments, are relayed to your code
 - stdin is relayed to your code
 - files and directories in `.gitignore` are not watched, neither are dotfiles.
