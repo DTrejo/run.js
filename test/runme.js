@@ -22,5 +22,7 @@ rl.on('line', function(line) {
 })
 
 console.log(prefix + 'Good to see you. Try typing `hello` or `error`.')
+console.log(prefix + 'My process.argv =', process.argv.join(' '));
+console.log(prefix + 'When you type, this process will get your keystrokes.');
 rl.setPrompt(prefix, prefix.length)
 rl.prompt()

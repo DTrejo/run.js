@@ -14,40 +14,38 @@ var util = require('util')
   // switched out for coffee depending on extension.
   , node = 'node'
 
-// 
+//
+// Tell user the correct usage if they miss-type
+//
+if (process.argv.length <= 2) {
+  console.log('Found ' + (process.argv.length - 2)
+    , 'argument(s). Expected one or more.')
+  console.log('Usage: \n  runjs somecode.js\nOr:  \n  runjs somecode.js --args')
+  process.exit(1)
+}
+
+//
+// use `coffee` if the file ends with .coffee
+//
+if (process.argv[2].match(/\.coffee$/)) node = 'coffee'
+
+//
 // Exclude files based on .gitignore
-// 
+//
 if (path.existsSync('.gitignore')) {
-  fs.readFileSync('.gitignore', 'utf8')
+  ignoreFiles = fs.readFileSync('.gitignore', 'utf8')
     .split('\n')
     .filter(function(s) {
       return s.indexOf('#') !== 0 && s.length > 0
     })
-    .map(function(s) {
-      return './' + s
-    })
 }
 
-console.log('watching', path.resolve('./'), 'and all sub-directories not'
-  , ' excluded by your .gitignore')
+console.log('Watching', path.resolve('./'), 'and all sub-directories not'
+  , 'excluded by your .gitignore. Will not monitor dotfiles.')
 
-// 
-// Tell user the correct usage if they miss-type
-// 
-if (process.argv.length !== 3) {
-  console.log('Found ' + (process.argv.length - 1)
-             + ' argument(s). Expected two.')
-  console.log('Usage: \n  node run.js servercode.js')
-  process.exit(1)
-}
-
-// 
-// use `coffee` if the file ends with .coffee
-// 
-if (process.argv[2].match(/\.coffee$/)) node = 'coffee'
-
-run()
 watchFiles(parseFolder('.'), restart) // watch all files, restart if problem
+run()
+
 
 process.stdin.resume()
 process.stdin.setEncoding('utf8')
@@ -55,7 +53,8 @@ process.stdin.setEncoding('utf8')
 // executes the command given by the second argument
 ;function run() {
   // run the server
-  child = spawn(node, [process.argv[2]])
+  var args = process.argv.slice(2) || []
+  child = spawn(node, args)
 
   // let the child's output escape.
   child.stdout.on('data', function(data) {
@@ -68,7 +67,7 @@ process.stdin.setEncoding('utf8')
   // let the user's typing get to the child
   process.stdin.pipe(child.stdin)
 
-  console.log('\nStarting: ' + process.argv[2])
+  console.log('\nStarting: ' + args.join(' '))
 }
 
 ;function restart() {
@@ -80,7 +79,7 @@ process.stdin.setEncoding('utf8')
 }
 
 /**
-* Parses a folder and returns a list of files
+* Parses a folder recursively and returns a list of files
 *
 * @param root {String}
 * @return {Array}
@@ -90,22 +89,18 @@ process.stdin.setEncoding('utf8')
     , files = fs.readdirSync(root)
 
   files.forEach(function(file) {
-    var path = root + '/' + file
-      , stat = fs.lstatSync(path)
+    var pathname = path.join(root, file)
+      , stat = fs.lstatSync(pathname)
 
-    // add to list
-    if (stat !== undefined && !stat.isDirectory()) {
-      fileList.push(path)
-    }
+    if (stat === undefined) return
 
-    // recur if directory, ignore dot directories
-    if (stat !== undefined
-    && stat.isDirectory()
-    && file.indexOf('.') !== 0
-    && ignoreFiles.indexOf(path) === -1) {
-      fileList = fileList.concat(parseFolder(path))
-    } else if (ignoreFiles.indexOf(path) !== -1) {
-      console.log('found & ignored', path, '; was listed in .gitignore')
+    // add files to file list
+    if (!stat.isDirectory()) {
+      fileList.push(pathname);
+
+    // recur if directory
+    } else {
+      fileList = fileList.concat(parseFolder(pathname))
     }
   })
 
@@ -123,31 +118,29 @@ process.stdin.setEncoding('utf8')
 ;function watchFiles(files, callback) {
 
   var config = {  persistent: true, interval: 1 }
-
   files.forEach(function (file) {
 
-    // don't watch things with given extensions, don't watch dotfiles.
-    var ext = file.slice(file.lastIndexOf('.'), file.length)
-    if (ignoreExtensions.indexOf(ext) !== -1 || file.indexOf('./.') === 0) {
-      // console.log('ignored' + file)
+    // don't watch dotfiles.
+    if (file.indexOf('.') === 0) return
+
+    // don't watch things with ignored extensions
+    var ext = path.extname(file)
+    if (ignoreExtensions.indexOf(ext) !== -1) {
+      console.log('Found & ignored', './' + file, '; has ignored extension')
       return
     }
+    // don't watch files in .gitignore
     if (ignoreFiles.indexOf(file) !== -1) {
-      console.log('found & ignored', file, '; was listed in .gitignore')
+      console.log('Found & ignored', './' + file, '; was listed in .gitignore')
       return
     }
 
-    // console.log(file)
-
-    // if one of the files changes
+    // if any file changes, run the callback
     fs.watchFile(file, config, function (curr, prev) {
 
       if ((curr.mtime + '') != (prev.mtime + '')) {
-        console.log(file + ' changed')
-
-        if (callback !== undefined) {
-          callback()
-        }
+        console.log('./' + file + ' changed')
+        if (callback) callback()
       }
     });
   });
