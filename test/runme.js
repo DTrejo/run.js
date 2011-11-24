@@ -7,6 +7,9 @@ rl.on('line', function(line) {
     case 'hello':
       console.log('world!');
       break;
+    case 'error':
+        throw new Error('Sample error!');
+      break;
     default:
       console.log('Say what? I might have heard `' + line.trim() + '`');
       break;

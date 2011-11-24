@@ -1,37 +1,39 @@
 // https://github.com/DTrejo/run.js
 // Used to run code in a directory and rerun it if any files are changed.
-// usage: node run.js servercode.js
-// servercode.js is whatever js file you want to run with node.
+// Usage: ./cli.js servercode.js
+// Where servercode.js is whatever js file you want node to run
 
 // Excludes filetypes in the ignoreExtensions array
 var util = require('util')
   , fs = require('fs')
   , path = require('path')
   , spawn = require('child_process').spawn
-  , child // child process which runs the actual code
+  , child // child process which runs the user's code
   , ignoreExtensions = ['.dirtydb', '.db']
-  // So much hacky :)
-  , ignoreFiles = (path.existsSync('.gitignore')
-                  && fs.readFileSync('.gitignore')
-                      .toString('utf8')
-                      .split('\n')
-                      .filter(function(s) {
-                        return s.indexOf('#') !== 0 && s.length > 0;
-                      })
-                      .map(function(s) {
-                        return './' + s;
-                      })
-                  ) || []
+  , ignoreFiles = []
   // switched out for coffee depending on extension.
   , node = 'node'
-  ;
 
-console.log('watching', path.resolve('./'), 'and excluding the below files');
-console.log('ignored files (via .gitignore):'
-  , '\n\t' + ignoreFiles.join('\n\t'));
-console.log('ignored extensions (via run.js):'
-  , '\n\t' + ignoreExtensions.join('\n\t'));
+// 
+// Exclude files based on .gitignore
+// 
+if (path.existsSync('.gitignore')) {
+  fs.readFileSync('.gitignore', 'utf8')
+    .split('\n')
+    .filter(function(s) {
+      return s.indexOf('#') !== 0 && s.length > 0;
+    })
+    .map(function(s) {
+      return './' + s;
+    })
+}
 
+console.log('watching', path.resolve('./'), 'and all sub-directories not'
+  , ' excluded by your .gitignore');
+
+// 
+// Tell user the correct usage if they miss-type
+// 
 if (process.argv.length !== 3) {
   console.log('Found ' + (process.argv.length - 1)
              + ' argument(s). Expected two.');
@@ -39,6 +41,9 @@ if (process.argv.length !== 3) {
   process.exit(1);
 }
 
+// 
+// use `coffee` if the file ends with .coffee
+// 
 if (process.argv[2].match(/\.coffee$/)) node = 'coffee';
 
 run();
@@ -95,9 +100,9 @@ function parseFolder(root) {
 
     // recur if directory, ignore dot directories
     if (stat !== undefined
-      && stat.isDirectory()
-      && file.indexOf('.') !== 0
-      && ignoreFiles.indexOf(path) === -1) {
+    && stat.isDirectory()
+    && file.indexOf('.') !== 0
+    && ignoreFiles.indexOf(path) === -1) {
       fileList = fileList.concat(parseFolder(path));
     } else if (ignoreFiles.indexOf(path) !== -1) {
       console.log('found & ignored', path, '; was listed in .gitignore');
@@ -109,9 +114,11 @@ function parseFolder(root) {
 
 
 /**
-* Adds change listener to the files
+* Add change listener to files, which is called whenever one changes.
+* Ignores certain extensions.
 *
 * @param files {Array}
+* @param callback {function}
 */
 function watchFiles(files, callback) {
 
