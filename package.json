@@ -17,7 +17,9 @@
   "engines": {
     "node": "*"
   },
-  "dependencies": {},
+  "dependencies": {
+    "glob": "2.1.x"
+  },
   "devDependencies": {},
   "homepage": "https://github.com/dtrejo/run.js"
 }

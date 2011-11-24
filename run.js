@@ -8,6 +8,7 @@ var util = require('util')
   , fs = require('fs')
   , path = require('path')
   , spawn = require('child_process').spawn
+  , glob = require('glob')
   , child // child process which runs the user's code
   , ignoreExtensions = ['.dirtydb', '.db']
   , ignoreFiles = []
@@ -36,6 +37,7 @@ if (path.existsSync('.gitignore')) {
   ignoreFiles = fs.readFileSync('.gitignore', 'utf8')
     .split('\n')
     .filter(function(s) {
+      s = s.trim()
       return s.indexOf('#') !== 0 && s.length > 0
     })
 }
@@ -96,7 +98,7 @@ process.stdin.setEncoding('utf8')
 
     // add files to file list
     if (!stat.isDirectory()) {
-      fileList.push(pathname);
+      fileList.push(pathname)
 
     // recur if directory
     } else {
@@ -129,10 +131,13 @@ process.stdin.setEncoding('utf8')
       console.log('Found & ignored', './' + file, '; has ignored extension')
       return
     }
-    // don't watch files in .gitignore
-    if (ignoreFiles.indexOf(file) !== -1) {
-      console.log('Found & ignored', './' + file, '; was listed in .gitignore')
-      return
+
+    // don't watch files matched by .gitignore regexes
+    for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
+      if (glob.fnmatch(pattern, file)) {
+        console.log('Found & ignored', './' + file, '; is listed in .gitignore')
+        return
+      }
     }
 
     // if any file changes, run the callback
@@ -142,6 +147,6 @@ process.stdin.setEncoding('utf8')
         console.log('./' + file + ' changed')
         if (callback) callback()
       }
-    });
-  });
+    })
+  })
 }
