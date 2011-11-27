@@ -24,8 +24,6 @@ your code will be rerun.
 This is especially nice for web-servers, as you can skip the terminal and
 alt-tab to the browser to see your updated code happily running.
 
-[See another example.](test/screenshot.png)
-
 ### Features
 - supports globs in .gitignore (e.g. `*.log`)
 - any arguments, including debug arguments, are relayed to your code
@@ -35,3 +33,6 @@ alt-tab to the browser to see your updated code happily running.
   (by [rockymeza](https://github.com/rockymeza))
 
 Source at [github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
+
+---
+![Screenshot of runjs](https://github.com/DTrejo/run.js/raw/master/test/screenshot.png)
