@@ -18,7 +18,7 @@
     "node": "*"
   },
   "dependencies": {
-    "glob": "2.1.x"
+    "minimatch": "*"
   },
   "devDependencies": {},
   "homepage": "https://github.com/dtrejo/run.js"
