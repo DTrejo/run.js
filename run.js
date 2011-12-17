@@ -8,7 +8,7 @@ var util = require('util')
   , fs = require('fs')
   , path = require('path')
   , spawn = require('child_process').spawn
-  , glob = require('glob')
+  , minimatch = require('minimatch')
   , child // child process which runs the user's code
   , ignoreExtensions = ['.dirtydb', '.db']
   , ignoreFiles = []
@@ -134,7 +134,7 @@ process.stdin.setEncoding('utf8')
 
     // don't watch files matched by .gitignore regexes
     for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
-      if (glob.fnmatch(pattern, file)) {
+      if (minimatch(file, pattern)) {
         console.log('Found & ignored', './' + file, '; is listed in .gitignore')
         return
       }
