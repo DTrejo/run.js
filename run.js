@@ -14,21 +14,35 @@ var util = require('util')
   , ignoreFiles = []
   // switched out for coffee depending on extension.
   , node = 'node'
+  , args = process.argv
+  , signal = null
 
 //
 // Tell user the correct usage if they miss-type
 //
-if (process.argv.length <= 2) {
-  console.log('Found ' + (process.argv.length - 2)
+if (args.length <= 2) {
+  console.log('Found ' + (args.length - 2)
     , 'argument(s). Expected one or more.')
-  console.log('Usage: \n  runjs somecode.js\nOr:  \n  runjs somecode.js --args')
+  console.log(
+    'Usage: \n  runjs [SIGNAL] somecode.js [--args]\n'+
+    'Ex:  \n  runjs somecode.js --args\n'+
+    '  runjs SIGUSR2 somecode.js --args\n'
+    )
   process.exit(1)
+}
+
+//
+// If we define a signal, parse it out and then remove from the array
+// 
+if (args[2].match(/^SIG/)) {
+  signal = args.splice(2, 1)[0];
 }
 
 //
 // use `coffee` if the file ends with .coffee
 //
-if (process.argv[2].match(/\.coffee$/)) node = 'coffee'
+if (args[2].match(/\.coffee$/)) node = 'coffee'
+
 
 //
 // Exclude files based on .gitignore
@@ -55,8 +69,8 @@ process.stdin.setEncoding('utf8')
 // executes the command given by the second argument
 ;function run() {
   // run the server
-  var args = process.argv.slice(2) || []
-  child = spawn(node, args)
+  var childArgs = args.slice(2) || []
+  child = spawn(node, childArgs)
 
   // let the child's output escape.
   child.stdout.on('data', function(data) {
@@ -69,15 +83,21 @@ process.stdin.setEncoding('utf8')
   // let the user's typing get to the child
   process.stdin.pipe(child.stdin)
 
-  console.log('\nStarting: ' + args.join(' '))
+  console.log('\nStarting: ' + childArgs.join(' '))
 }
 
 ;function restart() {
   // kill if running
-  if (child) child.kill()
-
-  // run it again
-  run()
+  if (child) {
+    if (signal) {
+      child.kill(signal)
+    } else {
+      child.kill()
+      run()
+    }
+  } else {
+    run()
+  }
 }
 
 /**
