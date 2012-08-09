@@ -1,6 +1,6 @@
 ## Install
 
-`$ npm install run`
+`$ npm -g install run`
 
 ## Usage
 
@@ -36,3 +36,12 @@ Source at [github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
 
 ---
 ![Screenshot of runjs](https://github.com/DTrejo/run.js/raw/master/test/screenshot.png)
+
+### Contributors
+Ordered by date of first contribution.
+[Auto-generated](http://github.com/dtrejo/node-authors) on Wed Aug 08 2012 20:27:26 GMT-0700 (PDT).
+
+- [David Trejo aka `DTrejo`](https://github.com/DTrejo)
+- [Rocky Meza aka `rockymeza`](https://github.com/rockymeza)
+- [Shani Elharrar aka `morishani`](https://github.com/morishani)
+- [Andrew Sutherland aka `asuth`](https://github.com/asuth)
