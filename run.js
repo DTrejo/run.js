@@ -11,7 +11,7 @@ var util = require('util')
   , minimatch = require('minimatch')
   , child // child process which runs the user's code
   , ignoreExtensions = ['.dirtydb', '.db']
-  , ignoreFiles = []
+  , ignoreFiles = [ 'node_modules' ]
   // switched out for coffee depending on extension.
   , node = 'node'
   , args = process.argv
@@ -33,7 +33,7 @@ if (args.length <= 2) {
 
 //
 // If we define a signal, parse it out and then remove from the array
-// 
+//
 if (args[2].match(/^SIG/)) {
   signal = args.splice(2, 1)[0];
 }
@@ -48,12 +48,13 @@ if (args[2].match(/\.coffee$/)) node = 'coffee'
 // Exclude files based on .gitignore
 //
 if (fs.existsSync('.gitignore')) {
-  ignoreFiles = fs.readFileSync('.gitignore', 'utf8')
+  ignoreFiles.concat(fs.readFileSync('.gitignore', 'utf8')
     .split('\n')
     .filter(function(s) {
       s = s.trim()
       return s.indexOf('#') !== 0 && s.length > 0
     })
+  )
 }
 
 console.log('Watching', path.resolve('./'), 'and all sub-directories not'
@@ -122,6 +123,13 @@ process.stdin.setEncoding('utf8')
 
     // recur if directory
     } else {
+      // don't watch folders matched by .gitignore regexes
+      for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
+        if (minimatch(file, pattern)) {
+          console.log('Found & ignored', './' + pathname, '; is listed in .gitignore')
+          return
+        }
+      }
       fileList = fileList.concat(parseFolder(pathname))
     }
   })
@@ -139,7 +147,7 @@ process.stdin.setEncoding('utf8')
 */
 ;function watchFiles(files, callback) {
 
-  var config = {  persistent: true, interval: 1 }
+  var config = {  persistent: true, interval: 25 }
   files.forEach(function (file) {
 
     // don't watch dotfiles.
