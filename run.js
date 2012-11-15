@@ -48,7 +48,7 @@ if (args[2].match(/\.coffee$/)) node = 'coffee'
 // Exclude files based on .gitignore
 //
 if (fs.existsSync('.gitignore')) {
-  ignoreFiles.concat(fs.readFileSync('.gitignore', 'utf8')
+  ignoreFiles = ignoreFiles.concat(fs.readFileSync('.gitignore', 'utf8')
     .split('\n')
     .filter(function(s) {
       s = s.trim()
