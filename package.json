@@ -1,7 +1,7 @@
 {
   "name": "run",
   "description": "Reruns the given file whenever a file in the current working dir subtree is changed.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/DTrejo/run.js.git"
