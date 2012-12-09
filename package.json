@@ -15,7 +15,7 @@
     "runjs": "./cli.js"
   },
   "engines": {
-    "node": "v0.7.x"
+    "node": "v0.x"
   },
   "dependencies": {
     "minimatch": "*"
