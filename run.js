@@ -10,7 +10,7 @@ var util = require('util')
   , spawn = require('child_process').spawn
   , minimatch = require('minimatch')
   , child // child process which runs the user's code
-  , ignoreExtensions = ['.dirtydb', '.db']
+  , ignoreExtensions = ['.dirtydb', '.db', '.styl', '.css']
   , ignoreFiles = [ 'node_modules' ]
   // switched out for coffee depending on extension.
   , node = 'node'
@@ -24,9 +24,9 @@ if (args.length <= 2) {
   console.log('Found ' + (args.length - 2)
     , 'argument(s). Expected one or more.')
   console.log(
-    'Usage: \n  runjs [SIGNAL] somecode.js [--args]\n'+
-    'Ex:  \n  runjs somecode.js --args\n'+
-    '  runjs SIGUSR2 somecode.js --args\n'
+    'Usage: \n  runjs [SIGNAL] somecode.js [--args]\n'
+    + 'Ex:  \n  runjs somecode.js --args'
+    + '     \n  runjs SIGUSR2 somecode.js --args\n'
     )
   process.exit(1)
 }
@@ -64,7 +64,6 @@ watchFiles(parseFolder('.'), restart) // watch all files, restart if problem
 run()
 
 
-process.stdin.resume()
 process.stdin.setEncoding('utf8')
 
 // executes the command given by the second argument
