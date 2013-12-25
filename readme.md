@@ -4,44 +4,41 @@
 
 ## Usage
 
-`$ runjs yourcode.js`
+`$ run yourcode.js`
+
+`$ run yourcode.js -- echo "one of the files I require has changed!"`
 
 # What does it do?
 
-`runjs` will rerun server.js whenever one of the watched files is
-changed. It ignores files in your `.gitignore`.
+`run` will rerun server.js whenever one of the watched files is
+changed. **It only watches files that your code requires** (in other words,
+dependencies).
 
-    $ runjs server.js
-    Watching /Dropbox/dev/server.js and all sub-directories not excluded by your .gitignore
-    Found & ignored file.db ; is dotfile or has ignored extension
-
-    Starting: server.js
+    $ run server.js
+    watching server.js
+    watching node_modules/minimatch/minimatch.js
+      watching node_modules/minimatch/node_modules/lru-cache/lib/lru-cache.js
+    watching hello.js
+      watching goodbye.js
+    Starting `node server.js`
     > Listening on http://localhost:8888/
 
 No more switching to the terminal to rerun your code. Just change a file and
-your code will be rerun.
+your code will be rerun. No more false-restarts caused by changes in compiled
+assets (e.g. html or css).
 
 This is especially nice for web-servers, as you can skip the terminal and
-alt-tab to the browser to see your updated code happily running.
+alt-tab to the browser to see your updated server code happily running.
 
 ### Features
-- supports globs in .gitignore (e.g. `*.log`)
 - any arguments, including debug arguments, are relayed to your code
-- **stdin is relayed to your code** [not supported by nodemon as of 12/5/11]
-- files and directories in `.gitignore` are not watched, neither are dotfiles.
-- coffeescript is supported: `runjs yourcode.coffee`
-  (by [rockymeza](https://github.com/rockymeza))
+- colors in output will be preserved! (stdin/stdout pipes are inherited)
+- supports arbitrary command running upon file change (all arguments after `--`
+  are `spawned` when any dependency changes):
+  `run hello.js -- node hello.js --debug-brk=1337`
 
 Source at [github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
 
 ---
-![Screenshot of runjs](https://github.com/DTrejo/run.js/raw/master/test/screenshot.png)
 
-### Contributors
-Ordered by date of first contribution.
-[Auto-generated](http://github.com/dtrejo/node-authors) on Wed Aug 08 2012 20:27:26 GMT-0700 (PDT).
-
-- [David Trejo aka `DTrejo`](https://github.com/DTrejo)
-- [Rocky Meza aka `rockymeza`](https://github.com/rockymeza)
-- [Shani Elharrar aka `morishani`](https://github.com/morishani)
-- [Andrew Sutherland aka `asuth`](https://github.com/asuth)
+<!-- TODO: screenshot of run.js -->
