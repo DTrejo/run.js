@@ -10,7 +10,7 @@ var util = require('util')
   , spawn = require('child_process').spawn
   , minimatch = require('minimatch')
   , child // child process which runs the user's code
-  , ignoreExtensions = ['.dirtydb', '.db', '.styl', '.css']
+  , ignoreExtensions = ['.dirtydb', '.db', '.styl', '.css', '.hbs']
   , ignoreFiles = [ 'node_modules' ]
   // switched out for coffee depending on extension.
   , node = 'node'
