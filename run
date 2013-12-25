@@ -19,7 +19,6 @@ if dep is deleted
   - restart()
 */
 var path = require('path')
-var inside = require('./inside')
 var required = require('required')
 var refwatch = require('./refwatch')
 var watcher = refwatch.watcher
@@ -57,35 +56,32 @@ return parseAndWatch(root, function() {
   runner.start()
 })
 
-// if the parse fails because the package is not installed / doesn't exist,
-// handleError tries to install it & restart, or just logs the error.
 function parseAndWatch(filename, cb) {
   // TODO clear listeners, clear refcounts
-  return required(filename, onDeps)
+  var opts = { ignoreMissing: onMissing }
+  return required(filename, opts, onDeps)
   function onDeps(err, deps) {
-    if (err) return handleError(err, filename)
+    if (err) return l(err.stack)
     watchDepTree(deps)
     return cb && cb()
   }
 }
-function handleError(err, root) {
-  var name = inside(err.message, "'")
-  if (name) {
-    var filename = err.message.slice(err.message.lastIndexOf(' ')+1)
-    l('TODO npm install %s # seen in: %s', name, filename)
-    // TODO actually install it, not pretend to
-    return setTimeout(function() {
-      return parseAndWatch(root)
-    }, 2000)
+function isPath(name) { return name[0] === '.' || name[0] === '/' }
+function onMissing(name, filename) {
+  // doesn't make sense to npm install a file!
+  if (isPath(name)) {
+    return l('# ignoring missing require("%s") seen in %s', name, filename)
   }
-  // it was an unknown kind of error, give up.
-  l(err.stack)
+
+  l('TODO npm install %s # seen in %s', name, filename)
+  // TODO actually install it, not pretend to
+  return setTimeout(function() {
+    return parseAndWatch(root) // try again
+  }, 2000)
 }
 
-function isNotCore(dep) { return !dep.core }
-// function isPath(dep) { return dep.id[0] === '.' || dep.id[0] === '/' }
 // function isNotPath(dep) { return !isPath(dep) }
-
+function isNotCore(dep) { return !dep.core }
 function watchDepTree(deps, indent) {
   indent = indent || ''
   // console.log('deps', JSON.stringify(deps, null, 2))
@@ -93,8 +89,8 @@ function watchDepTree(deps, indent) {
   // l(indent + 'userland', JSON.stringify(userland).slice(0, 40))
 
   userland.map(function(dep) {
-    watch(dep.filename)
-    watchDepTree(dep.deps, indent + '\t')
+    watch(dep.filename, indent)
+    watchDepTree(dep.deps, indent + '  ')
   })
   // var js = userland.filter(isPath)
   // var modules = userland.filter(isNotPath)

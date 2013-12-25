@@ -13,13 +13,14 @@ module.exports = {
 var tracked = {}
 
 // assumes that you pass it absolute file paths
-function watch(file) {
+function watch(file, indent) {
+  indent = indent || ''
   tracked[file] = tracked[file] || 0
   tracked[file]++
 
   // first time seeing it
   if (tracked[file] === 1) {
-    l('watching %s', path.relative(process.cwd(), file))
+    l(indent + 'watching %s', path.relative(process.cwd(), file))
     watcher.add(file)
   }
 }
