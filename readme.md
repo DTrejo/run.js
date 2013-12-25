@@ -36,6 +36,11 @@ alt-tab to the browser to see your updated server code happily running.
 - supports arbitrary command running upon file change (all arguments after `--`
   are `spawned` when any dependency changes):
   `run hello.js -- node hello.js --debug-brk=1337`
+- TODO installs any package you don't have (`npm install --save moduleName`)
+- TODO fix the slowness of stdin pipe inheriting?
+- TODO support `run server.coffee`
+- TODO selectively recompute files to watch whenever a source file changes
+  (if a dep is added for example, we want to watch it)
 
 Source at [github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
 
