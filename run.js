@@ -77,6 +77,7 @@ process.stdin.setEncoding('utf8')
 ;function restart() {
   // kill if running
   if (child) {
+    child.removeListener('exit', process.exit)
     if (signal) {
       child.kill(signal)
     } else {
