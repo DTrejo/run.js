@@ -68,21 +68,9 @@ process.stdin.setEncoding('utf8')
 
 // executes the command given by the second argument
 ;function run() {
-  // run the server
+  // run the child giving it direct access to parent's stdio streams
   var childArgs = args.slice(2) || []
-  child = spawn(node, childArgs)
-
-  // let the child's output escape.
-  child.stdout.on('data', function(data) {
-    util.print(data)
-  })
-  child.stderr.on('data', function(error) {
-    util.print(error)
-  })
-
-  // let the user's typing get to the child
-  process.stdin.pipe(child.stdin)
-
+  child = spawn(node, childArgs, { stdio: 'inherit' }).on('exit', process.exit)
   console.log('\nStarting: ' + childArgs.join(' '))
 }
 
