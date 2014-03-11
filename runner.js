@@ -36,6 +36,7 @@ function Runner(argv) {
 Runner.prototype.start = function() {
   var self = this
   l('Starting `%s`', self.argv.join(' '))
+  // TODO inheriting stdio does not pass user input to the child very quickly :(
   self.child = spawn(self.argv[0], self.argv.slice(1), { stdio: 'inherit' })
   self.child.on('close', function (code) {
     l('`%s` exited with code ' + code, self.argv.join(' '))
