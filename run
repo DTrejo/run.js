@@ -1,25 +1,8 @@
 #!/usr/bin/env node
-/*
-
-Ideal psuedo-code
-
-if dep changes
-  - scan file for new deps
-    - if dep is not installed, install it, restart()
-    - else restart()
-  - scan file for removed deps
-    - unwatch the removed dep (use refcount)
-    - restart()
-  - deps that were there last time
-    - do nothing
-
-if dep is deleted
-  - unwatch it (automatic)
-  - unwatch its sub-deps (use refcount)
-  - restart()
-*/
 var path = require('path')
 var required = require('required')
+var async = require('async')
+var install = require('./npm-install')
 var refwatch = require('./refwatch')
 var watcher = refwatch.watcher
 var watch = refwatch.watch
@@ -27,28 +10,27 @@ var unwatch = refwatch.unwatch
 
 var root = path.resolve(process.argv[2])
 var runner = require('./runner')(process.argv.slice(2))
-
 function l() { console.log.apply(console, arguments) }
 
 // TODO make these arguments to refwatch
 watcher
   .on('change', onChange)
   .on('unlink', onUnlink)
-  .on('error', onWatcherError)
-function onChange(path) {
-  l('File', path, 'has been changed')
-  // TODO reindex(path)
+  .on('error', function(err) { console.error('watcher error %s\n', err.stack) })
+  .on('addDir', function(path) { console.log('Directory', path, 'added') })
+  .on('unlinkDir', function(path) { console.log('Directory', path, 'removed') })
+function onChange(file) {
+  l('File', path.relative(process.cwd(), file), 'has been changed')
+  // TODO reindex(file) [clear listeners, clear refcounts, look for new deps]
+  // TODO set env vars saying what changed
   runner.restart()
 }
 // This case only matters when we want to restart; it's okay to overwatch
-function onUnlink(path) {
-  l('File', path, 'has been removed')
-  // TODO unwatch(path)
-  // TODO unindex(path)
+function onUnlink(dir) {
+  l('File', dir, path.relative(process.cwd(), dir), 'has been removed')
+  // TODO unwatch(dir)
+  // TODO unindex(dir)
   runner.restart()
-}
-function onWatcherError(error) {
-  console.error('onWatcherError %s\n', error.stack)
 }
 
 watch(root)
@@ -58,40 +40,41 @@ return parseAndWatch(root, function() {
 
 function parseAndWatch(filename, cb) {
   // TODO clear listeners, clear refcounts
-  var opts = { ignoreMissing: onMissing }
+  var missing = []
+  function ignoreMissing(id, file) {
+    missing.push({ id: id, file: file })
+  }
+  var opts = { ignoreMissing: ignoreMissing }
   return required(filename, opts, onDeps)
   function onDeps(err, deps) {
     if (err) return l(err.stack)
+    // l('deps', JSON.stringify(deps, null, 2))
+    // l('missing', missing)
+    if (missing.length) return installMissing(missing, retry)
+    console.time('watchDepTree')
     watchDepTree(deps)
+    console.timeEnd('watchDepTree')
     return cb && cb()
   }
-}
-function isPath(name) { return name[0] === '.' || name[0] === '/' }
-function onMissing(name, filename) {
-  // doesn't make sense to npm install a file!
-  if (isPath(name)) {
-    return l('# ignoring missing require("%s") seen in %s', name, filename)
+  function retry(err) {
+    if (err) return console.log('install error', err)
+    parseAndWatch(filename, cb)
   }
-
-  l('TODO npm install %s # seen in %s', name, filename)
-  // TODO actually install it, not pretend to
-  return setTimeout(function() {
-    return parseAndWatch(root) // try again
-  }, 2000)
 }
 
-// function isNotPath(dep) { return !isPath(dep) }
+function installMissing(missing, cb) {
+  var names = missing.map(function(m) { return m.id })
+  return install(names, cb) // TODO consider installing to dirname(m.file)
+}
+
 function isNotCore(dep) { return !dep.core }
+function isNotMissing(dep) { return !isMissing(dep) }
 function watchDepTree(deps, indent) {
   indent = indent || ''
-  // console.log('deps', JSON.stringify(deps, null, 2))
   var userland = deps.filter(isNotCore)
   // l(indent + 'userland', JSON.stringify(userland).slice(0, 40))
-
   userland.map(function(dep) {
     watch(dep.filename, indent)
     watchDepTree(dep.deps, indent + '  ')
   })
-  // var js = userland.filter(isPath)
-  // var modules = userland.filter(isNotPath)
 }

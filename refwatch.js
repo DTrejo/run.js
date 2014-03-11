@@ -26,6 +26,7 @@ function watch(file, indent) {
 }
 
 function unwatch(file) {
+  l('pre unwatch %s', tracked[file], file)
   if (tracked[file] > 0) tracked[file]--
 
   if (tracked[file] == 0) {

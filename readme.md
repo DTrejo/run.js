@@ -47,3 +47,24 @@ Source at [github.com/DTrejo/run.js](https://github.com/DTrejo/run.js)
 ---
 
 <!-- TODO: screenshot of run.js -->
+
+<!--
+
+Ideal psuedo-code
+
+if dep changes
+  - scan file for new deps
+    - if dep is not installed, install it, restart()
+    - else restart()
+  - scan file for removed deps
+    - unwatch the removed dep (use refcount)
+    - restart()
+  - deps that were there last time
+    - do nothing
+
+if dep is deleted
+  - unwatch it (automatic)
+  - unwatch its sub-deps (use refcount)
+  - restart()
+
+ -->

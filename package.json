@@ -18,8 +18,10 @@
     "node": ">=v0.9.0"
   },
   "dependencies": {
-    "required": "~0.3.2",
-    "chokidar": "~0.8.1"
+    "async": "^0.2.10",
+    "which": "^1.0.5",
+    "chokidar": "^0.8.1",
+    "required": "^0.3.2"
   },
   "devDependencies": {},
   "homepage": "https://github.com/dtrejo/run.js",
