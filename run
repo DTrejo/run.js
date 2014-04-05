@@ -12,6 +12,9 @@ var root = path.resolve(process.argv[2])
 var runner = require('./runner')(process.argv.slice(2))
 function l() { console.log.apply(console, arguments) }
 
+function prettyPath(p) { return path.relative(process.cwd(), p) }
+function isPath(id) { if (id[0] == '.' || id[0] == '/') return true }
+
 // TODO make these arguments to refwatch
 watcher
   .on('change', onChange)
@@ -20,14 +23,14 @@ watcher
   .on('addDir', function(path) { console.log('Directory', path, 'added') })
   .on('unlinkDir', function(path) { console.log('Directory', path, 'removed') })
 function onChange(file) {
-  l('File', path.relative(process.cwd(), file), 'has been changed')
+  l('File', prettyPath(file), 'has been changed')
   // TODO reindex(file) [clear listeners, clear refcounts, look for new deps]
   // TODO set env vars saying what changed
   runner.restart()
 }
 // This case only matters when we want to restart; it's okay to overwatch
 function onUnlink(dir) {
-  l('File', dir, path.relative(process.cwd(), dir), 'has been removed')
+  l('File', dir, prettyPath(dir), 'has been removed')
   // TODO unwatch(dir)
   // TODO unindex(dir)
   runner.restart()
@@ -42,6 +45,9 @@ function parseAndWatch(filename, cb) {
   // TODO clear listeners, clear refcounts
   var missing = []
   function ignoreMissing(id, file) {
+    if (isPath(id)) {
+      return console.log('Not found:', id, '; required by', prettyPath(file))
+    }
     missing.push({ id: id, file: file })
   }
   var opts = { ignoreMissing: ignoreMissing }
