@@ -1,0 +1,2 @@
+require('./goodbye')
+// require('gss')

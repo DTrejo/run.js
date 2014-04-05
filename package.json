@@ -1,7 +1,7 @@
 {
   "name": "run",
   "description": "Reruns the given file whenever a file in the current working dir subtree is changed.",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/DTrejo/run.js.git"
@@ -12,13 +12,16 @@
   ],
   "preferGlobal": true,
   "bin": {
-    "runjs": "./cli.js"
+    "run": "./run"
   },
   "engines": {
     "node": ">=v0.9.0"
   },
   "dependencies": {
-    "minimatch": "*"
+    "async": "^0.2.10",
+    "which": "^1.0.5",
+    "chokidar": "^0.8.1",
+    "required": "^0.4.0"
   },
   "devDependencies": {},
   "homepage": "https://github.com/dtrejo/run.js",

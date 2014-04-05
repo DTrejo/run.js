@@ -1,0 +1,86 @@
+#!/usr/bin/env node
+var path = require('path')
+var required = require('required')
+var async = require('async')
+var install = require('./npm-install')
+var refwatch = require('./refwatch')
+var watcher = refwatch.watcher
+var watch = refwatch.watch
+var unwatch = refwatch.unwatch
+
+var root = path.resolve(process.argv[2])
+var runner = require('./runner')(process.argv.slice(2))
+function l() { console.log.apply(console, arguments) }
+
+function prettyPath(p) { return path.relative(process.cwd(), p) }
+function isPath(id) { if (id[0] == '.' || id[0] == '/') return true }
+
+// TODO make these arguments to refwatch
+watcher
+  .on('change', onChange)
+  .on('unlink', onUnlink)
+  .on('error', function(err) { console.error('watcher error %s\n', err.stack) })
+  .on('addDir', function(path) { console.log('Directory', path, 'added') })
+  .on('unlinkDir', function(path) { console.log('Directory', path, 'removed') })
+function onChange(file) {
+  l('File', prettyPath(file), 'has been changed')
+  // TODO reindex(file) [clear listeners, clear refcounts, look for new deps]
+  // TODO set env vars saying what changed
+  runner.restart()
+}
+// This case only matters when we want to restart; it's okay to overwatch
+function onUnlink(dir) {
+  l('File', dir, prettyPath(dir), 'has been removed')
+  // TODO unwatch(dir)
+  // TODO unindex(dir)
+  runner.restart()
+}
+
+watch(root)
+return parseAndWatch(root, function() {
+  runner.start()
+})
+
+function parseAndWatch(filename, cb) {
+  // TODO clear listeners, clear refcounts
+  var missing = []
+  function ignoreMissing(id, file) {
+    if (isPath(id)) {
+      return console.log('Not found:', id, '; required by', prettyPath(file))
+    }
+    missing.push({ id: id, file: file })
+  }
+  var opts = { ignoreMissing: ignoreMissing }
+  return required(filename, opts, onDeps)
+  function onDeps(err, deps) {
+    if (err) return l(err.stack)
+    // l('deps', JSON.stringify(deps, null, 2))
+    // l('missing', missing)
+    if (missing.length) return installMissing(missing, retry)
+    console.time('watchDepTree')
+    watchDepTree(deps)
+    console.timeEnd('watchDepTree')
+    return cb && cb()
+  }
+  function retry(err) {
+    if (err) return console.log('install error', err)
+    parseAndWatch(filename, cb)
+  }
+}
+
+function installMissing(missing, cb) {
+  var names = missing.map(function(m) { return m.id })
+  return install(names, cb) // TODO consider installing to dirname(m.file)
+}
+
+function isNotCore(dep) { return !dep.core }
+function isNotMissing(dep) { return !isMissing(dep) }
+function watchDepTree(deps, indent) {
+  indent = indent || ''
+  var userland = deps.filter(isNotCore)
+  // l(indent + 'userland', JSON.stringify(userland).slice(0, 40))
+  userland.map(function(dep) {
+    watch(dep.filename, indent)
+    watchDepTree(dep.deps, indent + '  ')
+  })
+}
