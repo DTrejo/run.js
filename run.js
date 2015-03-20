@@ -74,10 +74,10 @@ process.stdin.setEncoding('utf8')
 
   // let the child's output escape.
   child.stdout.on('data', function(data) {
-    util.print(data)
+    process.stdout.write(data)
   })
   child.stderr.on('data', function(error) {
-    util.print(error)
+    process.stdout.write(error)
   })
 
   // let the user's typing get to the child
