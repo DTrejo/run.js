@@ -8,7 +8,7 @@ var util = require('util')
   , fs = require('fs')
   , path = require('path')
   , spawn = require('child_process').spawn
-  , minimatch = require('minimatch')
+  , { minimatch } = require('minimatch')
   , child // child process which runs the user's code
   , ignoreExtensions = ['.dirtydb', '.db', '.styl', '.css']
   , ignoreFiles = [ 'node_modules' ]
