@@ -1,3 +1,7 @@
+# Update: I've given this package name to Vercel, so future versions will be something different! 
+- `npm i -D run@1` should continue serving this package.
+- I recommend checking out `node --watch` and `--watch-path`, or nodemon.
+
 ## Install
 
 `$ npm -g install run`
