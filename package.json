@@ -18,7 +18,7 @@
     "node": ">=v0.9.0"
   },
   "dependencies": {
-    "minimatch": "*"
+    "minimatch": "^9.0.5"
   },
   "devDependencies": {},
   "homepage": "https://github.com/dtrejo/run.js",
