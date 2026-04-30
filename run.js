@@ -100,6 +100,32 @@ process.stdin.setEncoding('utf8')
   }
 }
 
+
+/**
+ * Checks if a path matches the .gitignore rules
+ *
+ * @param path {String}
+ * @return Boolean
+ */
+;function checkIgnore(path) {
+  ignore = false
+  for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
+    if (pattern[0] == "!") {
+      if (!minimatch(path, pattern)) {
+        // not matching a negated pattern means this path does match the underlying pattern
+        // so a previous ignore should be overridden
+        ignore = false
+      }
+    } else {
+      if (minimatch(path,pattern)) {
+        ignore = true
+      }
+    }
+  }
+  return ignore
+}
+
+
 /**
 * Parses a folder recursively and returns a list of files
 *
@@ -123,11 +149,9 @@ process.stdin.setEncoding('utf8')
     // recur if directory
     } else {
       // don't watch folders matched by .gitignore regexes
-      for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
-        if (minimatch(file, pattern)) {
-          console.log('Found & ignored', './' + pathname, '; is listed in .gitignore')
-          return
-        }
+      if (checkIgnore(file)) {
+        console.log('Found & ignored folder', './' + pathname, '; is listed in .gitignore')
+        return
       }
       fileList = fileList.concat(parseFolder(pathname))
     }
@@ -155,16 +179,14 @@ process.stdin.setEncoding('utf8')
     // don't watch things with ignored extensions
     var ext = path.extname(file)
     if (ignoreExtensions.indexOf(ext) !== -1) {
-      console.log('Found & ignored', './' + file, '; has ignored extension')
+      console.log('Found & ignored file', './' + file, '; has ignored extension')
       return
     }
 
     // don't watch files matched by .gitignore regexes
-    for (var i = 0, pattern; pattern = ignoreFiles[i]; i++) {
-      if (minimatch(file, pattern)) {
-        console.log('Found & ignored', './' + file, '; is listed in .gitignore')
-        return
-      }
+    if (checkIgnore(file)) {
+      console.log('Found & ignored file', './' + file, '; is listed in .gitignore')
+      return
     }
 
     // if any file changes, run the callback
